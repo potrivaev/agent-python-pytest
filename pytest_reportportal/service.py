@@ -94,6 +94,7 @@ class PyTestServiceClass(with_metaclass(Singleton, object)):
                 token=uuid,
                 error_handler=self.async_error_handler,
                 # retries=retries,
+
                 log_batch_size=log_batch_size  # ,
                 # verify_ssl=verify_ssl
             )

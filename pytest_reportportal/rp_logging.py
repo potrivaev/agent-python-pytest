@@ -1,7 +1,8 @@
-import sys
 import logging
+import sys
 from contextlib import contextmanager
 from functools import wraps
+
 from six import PY2
 
 
@@ -45,7 +46,7 @@ class RPLogger(logging.getLoggerClass()):
                                      exc_info, func, extra, sinfo)
 
         if not hasattr(record, "attachment"):
-            record.attachment = None
+            record.attachment = attachment
         if not record.attachment:
             record.attachment = attachment
         self.handle(record)
@@ -54,13 +55,13 @@ class RPLogger(logging.getLoggerClass()):
 class RPLogHandler(logging.Handler):
     # Map loglevel codes from `logging` module to ReportPortal text names:
     _loglevel_map = {
-        logging.NOTSET: 'TRACE',
-        logging.DEBUG: 'DEBUG',
-        logging.INFO: 'INFO',
-        logging.WARNING: 'WARN',
-        logging.ERROR: 'ERROR',
-        logging.CRITICAL: 'ERROR',
-    }
+            logging.NOTSET: 'TRACE',
+            logging.DEBUG: 'DEBUG',
+            logging.INFO: 'INFO',
+            logging.WARNING: 'WARN',
+            logging.ERROR: 'ERROR',
+            logging.CRITICAL: 'ERROR',
+            }
     _sorted_levelnos = sorted(_loglevel_map.keys(), reverse=True)
 
     def __init__(self, py_test_service,
@@ -99,10 +100,10 @@ class RPLogHandler(logging.Handler):
         for level in self._sorted_levelnos:
             if level <= record.levelno:
                 return self.py_test_service.post_log(
-                    msg,
-                    loglevel=self._loglevel_map[level],
-                    attachment=record.__dict__.get('attachment', None),
-                )
+                        msg,
+                        loglevel=self._loglevel_map[level],
+                        attachment=record.__dict__.get('attachment', None),
+                        )
 
 
 @contextmanager
@@ -118,8 +119,9 @@ def patching_logger_class():
                 attachment = kwargs.pop('attachment', None)
                 if attachment is not None:
                     kwargs.setdefault('extra', {}).update(
-                        {'attachment': attachment})
+                            {'attachment': attachment})
                 return original_func(self, *args, **kwargs)
+
             return _log
 
         def wrap_makeRecord(original_func):
@@ -142,6 +144,7 @@ def patching_logger_class():
                                            extra=extra)
                 record.attachment = attachment
                 return record
+
             return makeRecord
 
         if not logger_class == RPLogger and not hasattr(logger_class, "_patched"):
